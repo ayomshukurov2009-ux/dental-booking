@@ -1,41 +1,67 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const Datastore = require('@seald-io/nedb');
+const mongoose = require('mongoose');
+require('dotenv').config();
 
-// ─── Database Setup ────────────────────────────────────────────────────────────
-const dbPath = path.join(__dirname, 'data');
-fs.mkdirSync(dbPath, { recursive: true });
-
-const appointmentsDB = new Datastore({ filename: path.join(dbPath, 'appointments.db'), autoload: true });
-const usersDB = new Datastore({ filename: path.join(dbPath, 'users.db'), autoload: true });
-
-// Unique index on date+time combination (we'll enforce manually)
-appointmentsDB.ensureIndex({ fieldName: 'slotKey', unique: true }, () => {});
-
-// Seed admin user (idempotent)
+// ─── Constants ────────────────────────────────────────────────────────────
 const ADMIN_EMAIL = 'ayomshukurov2009@gmail.com';
 const ADMIN_PASS  = '20090829';
 const JWT_SECRET  = 'dental_crm_secret_2024_$';
 
-usersDB.findOne({ email: ADMIN_EMAIL }, (err, doc) => {
-  if (!doc) {
-    const hash = bcrypt.hashSync(ADMIN_PASS, 10);
-    usersDB.insert({ email: ADMIN_EMAIL, password_hash: hash });
-    console.log('✅ Admin user created');
-  }
+// ─── Database Setup (MongoDB) ──────────────────────────────────────────────────
+const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/dental-clinic';
+
+mongoose.connect(MONGO_URI)
+  .then(() => {
+    console.log('✅ Подключено к MongoDB');
+    initAdmin();
+  })
+  .catch(err => {
+    console.error('❌ Ошибка подключения к MongoDB:', err);
+    console.error('Если запускаешь на Render, убедись, что добавил переменную MONGODB_URI в Environment Variables!');
+  });
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+const appointmentSchema = new mongoose.Schema({
+  slotKey: { type: String, unique: true, required: true },
+  date: { type: String, required: true },
+  time: { type: String, required: true },
+  client_name: { type: String, required: true },
+  client_phone: { type: String, required: true },
+  procedure: { type: String, required: true },
+  final_price: { type: Number, default: null },
+  price_set_at: { type: String, default: null },
+  created_at: { type: String, required: true }
 });
 
-// ─── Apps ─────────────────────────────────────────────────────────────────────
-const app = express();
+const userSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  password_hash: { type: String, required: true }
+});
 
-// Security: hide server fingerprint
+const Appointment = mongoose.model('Appointment', appointmentSchema);
+const User = mongoose.model('User', userSchema);
+
+async function initAdmin() {
+  try {
+    const user = await User.findOne({ email: ADMIN_EMAIL });
+    if (!user) {
+      const hash = bcrypt.hashSync(ADMIN_PASS, 10);
+      await User.create({ email: ADMIN_EMAIL, password_hash: hash });
+      console.log('✅ Admin user created in MongoDB');
+    }
+  } catch (err) {
+    console.error('Admin init error:', err);
+  }
+}
+
+// ─── Apps Setup ──────────────────────────────────────────────────────────────
+const app = express();
 app.disable('x-powered-by');
 
-// Security headers
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
@@ -45,10 +71,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// CORS for all routes
 app.use(cors({
   origin: function(origin, cb) {
-    // Permit all origins for flexibility, or you can restrict it here
     cb(null, true);
   },
   credentials: true
@@ -71,20 +95,15 @@ function authMiddleware(req, res, next) {
 // ─── Helper: date range for stats ─────────────────────────────────────────────
 function getDateStrings() {
   const now = new Date();
-
   const yearStart  = `${now.getFullYear()}-01-01`;
-
   const m = String(now.getMonth() + 1).padStart(2, '0');
   const monthStart = `${now.getFullYear()}-${m}-01`;
-
   const day = now.getDay();
   const diff = day === 0 ? -6 : 1 - day;
   const weekStartDate = new Date(now);
   weekStartDate.setDate(now.getDate() + diff);
   const weekStart = weekStartDate.toISOString().slice(0, 10);
-
   const today = now.toISOString().slice(0, 10);
-
   return { yearStart, monthStart, weekStart, today };
 }
 
@@ -92,76 +111,69 @@ function getDateStrings() {
 //  API ROUTES
 // ══════════════════════════════════════════════════════════════════════════════
 
-// GET /api/slots?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
-app.get('/api/slots', (req, res) => {
-  const { startDate = '', endDate = '9999-12-31' } = req.query;
-  appointmentsDB.find(
-    { date: { $gte: startDate, $lte: endDate } },
-    { date: 1, time: 1, _id: 0 },
-    (err, docs) => {
-      if (err) return res.status(500).json({ error: 'DB error' });
-      res.json(docs);
-    }
-  );
+// GET /api/slots
+app.get('/api/slots', async (req, res) => {
+  try {
+    const { startDate = '', endDate = '9999-12-31' } = req.query;
+    const docs = await Appointment.find(
+      { date: { $gte: startDate, $lte: endDate } },
+      'date time -_id'
+    );
+    res.json(docs);
+  } catch (err) {
+    res.status(500).json({ error: 'DB error' });
+  }
 });
 
 // POST /api/book
-app.post('/api/book', (req, res) => {
-  const { date, time, client_name, client_phone, procedure } = req.body;
+app.post('/api/book', async (req, res) => {
+  try {
+    const { date, time, client_name, client_phone, procedure } = req.body;
 
-  if (!date || !time || !client_name || !client_phone || !procedure)
-    return res.status(400).json({ error: 'Все поля обязательны' });
+    if (!date || !time || !client_name || !client_phone || !procedure)
+      return res.status(400).json({ error: 'Все поля обязательны' });
 
-  if (!/^\+992\d{9}$/.test(client_phone))
-    return res.status(400).json({ error: 'Номер телефона должен быть в формате +992XXXXXXXXX (9 цифр)' });
+    if (!/^\+992\d{9}$/.test(client_phone))
+      return res.status(400).json({ error: 'Номер телефона должен быть в формате +992XXXXXXXXX (9 цифр)' });
 
-  const slotKey = `${date}_${time}`;
+    const slotKey = `${date}_${time}`;
 
-  // Check if slot exists
-  appointmentsDB.findOne({ slotKey }, (err, existing) => {
-    if (err) return res.status(500).json({ error: 'DB error' });
+    const existing = await Appointment.findOne({ slotKey });
     if (existing) return res.status(409).json({ error: 'Это время уже занято' });
 
-    const doc = {
-      slotKey,
-      date,
-      time,
-      client_name,
-      client_phone,
-      procedure,
-      final_price: null,
-      price_set_at: null,
+    const newDoc = await Appointment.create({
+      slotKey, date, time, client_name, client_phone, procedure,
+      final_price: null, price_set_at: null,
       created_at: new Date().toISOString()
-    };
-
-    appointmentsDB.insert(doc, (err2, newDoc) => {
-      if (err2) {
-        if (err2.errorType === 'uniqueViolated')
-          return res.status(409).json({ error: 'Это время уже занято' });
-        return res.status(500).json({ error: 'Ошибка сервера' });
-      }
-      res.json({ success: true, id: newDoc._id });
     });
-  });
+
+    res.json({ success: true, id: newDoc._id });
+  } catch (err) {
+    if (err.code === 11000) return res.status(409).json({ error: 'Это время уже занято' });
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
 });
 
 // POST /api/admin/login
-app.post('/api/admin/login', (req, res) => {
-  const { email, password } = req.body;
-  usersDB.findOne({ email }, (err, user) => {
-    if (err || !user || !bcrypt.compareSync(password, user.password_hash))
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user || !bcrypt.compareSync(password, user.password_hash)) {
       return res.status(401).json({ error: 'Неверная почта или пароль' });
+    }
     const token = jwt.sign({ email: user.email }, JWT_SECRET, { expiresIn: '8h' });
     res.json({ token, email: user.email });
-  });
+  } catch (err) {
+    res.status(500).json({ error: 'DB error' });
+  }
 });
 
 // GET /api/admin/stats
-app.get('/api/admin/stats', authMiddleware, (req, res) => {
-  const { yearStart, monthStart, weekStart, today } = getDateStrings();
-
-  appointmentsDB.find({}, (err, all) => {
-    if (err) return res.status(500).json({ error: 'DB error' });
+app.get('/api/admin/stats', authMiddleware, async (req, res) => {
+  try {
+    const { yearStart, monthStart, weekStart, today } = getDateStrings();
+    const all = await Appointment.find({});
 
     const yearCount  = all.filter(a => a.date >= yearStart).length;
     const monthCount = all.filter(a => a.date >= monthStart).length;
@@ -171,48 +183,54 @@ app.get('/api/admin/stats', authMiddleware, (req, res) => {
     const priceSetCount = all.filter(a => a.final_price !== null).length;
 
     res.json({ yearCount, monthCount, weekCount, todayCount, totalCount, priceSetCount });
-  });
+  } catch (err) {
+    res.status(500).json({ error: 'DB error' });
+  }
 });
 
 // GET /api/admin/appointments
-app.get('/api/admin/appointments', authMiddleware, (req, res) => {
-  appointmentsDB.find({}).sort({ date: -1, time: 1 }).exec((err, docs) => {
-    if (err) return res.status(500).json({ error: 'DB error' });
-    res.json(docs.map(d => ({ ...d, id: d._id })));
-  });
+app.get('/api/admin/appointments', authMiddleware, async (req, res) => {
+  try {
+    const docs = await Appointment.find({}).sort({ date: -1, time: 1 });
+    res.json(docs.map(d => ({ ...d.toObject(), id: d._id })));
+  } catch (err) {
+    res.status(500).json({ error: 'DB error' });
+  }
 });
 
 // PATCH /api/admin/appointments/:id/price
-app.patch('/api/admin/appointments/:id/price', authMiddleware, (req, res) => {
-  const { id } = req.params;
-  const { final_price } = req.body;
+app.patch('/api/admin/appointments/:id/price', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { final_price } = req.body;
 
-  if (typeof final_price !== 'number' || final_price < 0)
-    return res.status(400).json({ error: 'Некорректная цена' });
+    if (typeof final_price !== 'number' || final_price < 0)
+      return res.status(400).json({ error: 'Некорректная цена' });
 
-  appointmentsDB.findOne({ _id: id }, (err, doc) => {
-    if (err || !doc) return res.status(404).json({ error: 'Запись не найдена' });
+    const doc = await Appointment.findById(id);
+    if (!doc) return res.status(404).json({ error: 'Запись не найдена' });
     if (doc.final_price !== null)
       return res.status(403).json({ error: 'Цена уже установлена и не может быть изменена' });
 
-    appointmentsDB.update(
-      { _id: id },
-      { $set: { final_price, price_set_at: new Date().toISOString() } },
-      {},
-      err2 => {
-        if (err2) return res.status(500).json({ error: 'DB error' });
-        res.json({ success: true });
-      }
-    );
-  });
+    doc.final_price = final_price;
+    doc.price_set_at = new Date().toISOString();
+    await doc.save();
+
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'DB error' });
+  }
 });
 
 // DELETE /api/admin/appointments/:id
-app.delete('/api/admin/appointments/:id', authMiddleware, (req, res) => {
-  appointmentsDB.remove({ _id: req.params.id }, {}, (err, n) => {
-    if (err || n === 0) return res.status(404).json({ error: 'Запись не найдена' });
+app.delete('/api/admin/appointments/:id', authMiddleware, async (req, res) => {
+  try {
+    const result = await Appointment.deleteOne({ _id: req.params.id });
+    if (result.deletedCount === 0) return res.status(404).json({ error: 'Запись не найдена' });
     res.json({ success: true });
-  });
+  } catch (err) {
+    res.status(500).json({ error: 'DB error' });
+  }
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
