@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Стоматология — Доктор Шукуров</title>
+  <meta name="description" content="Профессиональная стоматологическая помощь. Запишитесь онлайн к доктору Шукурову." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="protect.js"></script>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════ HEADER ══════════════════════════════════ -->
+  <header class="header">
+    <div class="container header__inner">
+      <div class="header__logo">
+        <span class="logo-icon">🦷</span>
+        <div>
+          <span class="logo-name">Доктор Шукуров</span>
+          <span class="logo-sub">Стоматологическая клиника</span>
+        </div>
+      </div>
+      <nav class="header__nav">
+        <a href="#about">О враче</a>
+        <a href="#services">Услуги</a>
+        <a href="#booking">Запись</a>
+        <a href="#contacts">Контакты</a>
+      </nav>
+      <button class="btn btn--primary btn--sm header__cta" onclick="document.getElementById('booking').scrollIntoView({behavior:'smooth'})">
+        Записаться
+      </button>
+      <button class="burger" id="burgerBtn" aria-label="Меню">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <!-- Mobile nav -->
+    <nav class="mobile-nav" id="mobileNav">
+      <a href="#about" onclick="closeMobileNav()">О враче</a>
+      <a href="#services" onclick="closeMobileNav()">Услуги</a>
+      <a href="#booking" onclick="closeMobileNav()">Запись</a>
+      <a href="#contacts" onclick="closeMobileNav()">Контакты</a>
+    </nav>
+  </header>
+
+  <!-- ═══════════════════════════════ HERO ════════════════════════════════════ -->
+  <section class="hero">
+    <div class="hero__bg-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+    <div class="container hero__inner">
+      <div class="hero__content">
+        <div class="hero__badge">✨ Более 15 лет опыта</div>
+        <h1 class="hero__title">Ваша улыбка —<br/><span class="gradient-text">наша забота</span></h1>
+        <p class="hero__desc">Профессиональная стоматологическая помощь с применением современных технологий. Безболезненно, качественно, надёжно.</p>
+        <div class="hero__actions">
+          <button class="btn btn--primary btn--lg" onclick="document.getElementById('booking').scrollIntoView({behavior:'smooth'})">
+            📅 Записаться онлайн
+          </button>
+          <button class="btn btn--outline btn--lg" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">
+            Узнать больше
+          </button>
+        </div>
+        <div class="hero__stats">
+          <div class="stat">
+            <span class="stat__num">3000+</span>
+            <span class="stat__label">Пациентов</span>
+          </div>
+          <div class="stat">
+            <span class="stat__num">15</span>
+            <span class="stat__label">Лет опыта</span>
+          </div>
+          <div class="stat">
+            <span class="stat__num">100%</span>
+            <span class="stat__label">Гарантия</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero__image-wrap">
+        <div class="hero__image-card">
+          <div class="doctor-avatar">
+            <div class="doctor-avatar__icon">👨‍⚕️</div>
+          </div>
+          <div class="doctor-card-info">
+            <strong>Шукуров А.О.</strong>
+            <span>Главный стоматолог</span>
+            <div class="rating">⭐⭐⭐⭐⭐ <small>4.98</small></div>
+          </div>
+        </div>
+        <div class="floating-badge badge-top">
+          <span>🛡️</span> Безопасно
+        </div>
+        <div class="floating-badge badge-bottom">
+          <span>⚡</span> Быстро
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ ABOUT ═══════════════════════════════════ -->
+  <section class="section about" id="about">
+    <div class="container">
+      <div class="section-badge">О враче</div>
+      <h2 class="section-title">Познакомьтесь с <span class="gradient-text">доктором</span></h2>
+      <div class="about__grid">
+        <div class="about__photo-wrap">
+          <div class="about__photo">
+            <div class="about__photo-inner">
+              <div class="big-doc-icon">🦷</div>
+              <div class="big-doc-text">Доктор<br/>Шукуров А.О.</div>
+            </div>
+          </div>
+          <div class="about__cert">
+            <div class="cert-item">🎓 Медицинский университет ТГМУ, 2008</div>
+            <div class="cert-item">🏅 Член Ассоциации стоматологов РТ</div>
+            <div class="cert-item">📜 Международная сертификация</div>
+          </div>
+        </div>
+        <div class="about__text">
+          <h3>Аёмшо Шукуров</h3>
+          <p class="about__position">Стоматолог-терапевт, хирург • Стаж 15+ лет</p>
+          <p>Доктор Шукуров — один из самых опытных стоматологов города. Он окончил Таджикский государственный медицинский университет с отличием и прошёл стажировку в ведущих клиниках России и Германии.</p>
+          <p>За годы практики Аёмшо провёл тысячи успешных операций и терапевтических процедур. Его главный принцип — безболезненное лечение и индивидуальный подход к каждому пациенту.</p>
+          <p>Доктор постоянно повышает квалификацию, участвуя в международных конференциях и семинарах, чтобы применять только самые современные методики.</p>
+          <div class="about__highlights">
+            <div class="highlight">
+              <div class="highlight__icon">🎯</div>
+              <div>
+                <strong>Точность</strong>
+                <span>Современное оборудование для точной диагностики</span>
+              </div>
+            </div>
+            <div class="highlight">
+              <div class="highlight__icon">💙</div>
+              <div>
+                <strong>Забота</strong>
+                <span>Индивидуальный подход к каждому пациенту</span>
+              </div>
+            </div>
+            <div class="highlight">
+              <div class="highlight__icon">🔬</div>
+              <div>
+                <strong>Технологии</strong>
+                <span>Европейские материалы и методики лечения</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ SERVICES ═════════════════════════════════ -->
+  <section class="section services" id="services">
+    <div class="container">
+      <div class="section-badge">Наши услуги</div>
+      <h2 class="section-title">Что мы <span class="gradient-text">лечим</span></h2>
+      <p class="section-sub">Полный спектр стоматологических услуг в одном месте</p>
+      <div class="services__grid">
+        <div class="service-card" data-proc="Удаление зуба">
+          <div class="service-card__icon">🦷</div>
+          <h3>Удаление зуба</h3>
+          <p>Безболезненное удаление зубов под местной анестезией. Простое и сложное удаление, удаление зубов мудрости.</p>
+          <div class="service-card__price">от 80 сомони</div>
+          <button class="btn btn--ghost btn--sm" onclick="openBookingFor('Удаление зуба')">Записаться →</button>
+        </div>
+        <div class="service-card service-card--featured" data-proc="Пломбирование">
+          <div class="service-badge-top">Популярно</div>
+          <div class="service-card__icon">🔧</div>
+          <h3>Пломбирование</h3>
+          <p>Лечение кариеса и установка пломб из современных композитных материалов. Цвет подбирается индивидуально.</p>
+          <div class="service-card__price">от 120 сомони</div>
+          <button class="btn btn--primary btn--sm" onclick="openBookingFor('Пломбирование')">Записаться →</button>
+        </div>
+        <div class="service-card" data-proc="Чистка зубов">
+          <div class="service-card__icon">✨</div>
+          <h3>Профессиональная чистка</h3>
+          <p>Ультразвуковое удаление зубного камня и налёта, полировка зубной эмали. Ваши зубы станут белее.</p>
+          <div class="service-card__price">от 150 сомони</div>
+          <button class="btn btn--ghost btn--sm" onclick="openBookingFor('Чистка зубов')">Записаться →</button>
+        </div>
+        <div class="service-card" data-proc="Установка коронки">
+          <div class="service-card__icon">👑</div>
+          <h3>Установка коронки</h3>
+          <p>Металлокерамические и цельнокерамические коронки. Восстановление формы и функции зуба на долгие годы.</p>
+          <div class="service-card__price">от 500 сомони</div>
+          <button class="btn btn--ghost btn--sm" onclick="openBookingFor('Установка коронки')">Записаться →</button>
+        </div>
+        <div class="service-card" data-proc="Лечение канала">
+          <div class="service-card__icon">🔬</div>
+          <h3>Лечение каналов</h3>
+          <p>Эндодонтическое лечение — чистка и пломбирование корневых каналов. Спасение зубов от удаления.</p>
+          <div class="service-card__price">от 200 сомони</div>
+          <button class="btn btn--ghost btn--sm" onclick="openBookingFor('Лечение канала')">Записаться →</button>
+        </div>
+        <div class="service-card" data-proc="Отбеливание зубов">
+          <div class="service-card__icon">💎</div>
+          <h3>Отбеливание</h3>
+          <p>Современные системы отбеливания ZOOM и домашние отбеливающие капы. До 10 тонов светлее за один сеанс.</p>
+          <div class="service-card__price">от 350 сомони</div>
+          <button class="btn btn--ghost btn--sm" onclick="openBookingFor('Отбеливание зубов')">Записаться →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ WHY US ══════════════════════════════════ -->
+  <section class="section why-us">
+    <div class="container">
+      <div class="why-us__grid">
+        <div class="why-us__content">
+          <div class="section-badge">Почему мы</div>
+          <h2 class="section-title">Доверяют <span class="gradient-text">тысячи</span> пациентов</h2>
+          <div class="why-list">
+            <div class="why-item">
+              <div class="why-item__num">01</div>
+              <div>
+                <strong>Современное оборудование</strong>
+                <p>Цифровая рентгенография, лазерное лечение, 3D-томография</p>
+              </div>
+            </div>
+            <div class="why-item">
+              <div class="why-item__num">02</div>
+              <div>
+                <strong>Комфортное лечение</strong>
+                <p>Работаем только с сертифицированными анестетиками последнего поколения</p>
+              </div>
+            </div>
+            <div class="why-item">
+              <div class="why-item__num">03</div>
+              <div>
+                <strong>Гарантия на работы</strong>
+                <p>Письменная гарантия на все виды лечения и протезирования</p>
+              </div>
+            </div>
+            <div class="why-item">
+              <div class="why-item__num">04</div>
+              <div>
+                <strong>Онлайн-запись 24/7</strong>
+                <p>Записывайтесь в любое время без звонков и ожидания</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="why-us__cards">
+          <div class="mini-card">
+            <span class="mini-card__icon">⏰</span>
+            <strong>9:00 — 19:00</strong>
+            <span>Пн — Сб</span>
+          </div>
+          <div class="mini-card">
+            <span class="mini-card__icon">📍</span>
+            <strong>Душанбе</strong>
+            <span>ул. Рудаки, 47</span>
+          </div>
+          <div class="mini-card">
+            <span class="mini-card__icon">📞</span>
+            <strong>+992 37 000-00-00</strong>
+            <span>Для связи</span>
+          </div>
+          <div class="mini-card mini-card--accent">
+            <span class="mini-card__icon">🌟</span>
+            <strong>Бесплатная</strong>
+            <span>консультация</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ BOOKING ══════════════════════════════════ -->
+  <section class="section booking" id="booking">
+    <div class="container">
+      <div class="section-badge">Запись онлайн</div>
+      <h2 class="section-title">Выберите удобное <span class="gradient-text">время</span></h2>
+      <p class="section-sub">Нажмите на свободную ячейку, чтобы записаться</p>
+
+      <!-- Week navigation -->
+      <div class="booking__nav">
+        <button class="btn btn--outline btn--sm" id="prevWeek" onclick="changeWeek(-1)">← Прошлая</button>
+        <span class="booking__week-label" id="weekLabel"></span>
+        <button class="btn btn--outline btn--sm" id="nextWeek" onclick="changeWeek(1)">Следующая →</button>
+      </div>
+
+      <!-- Booking table -->
+      <div class="booking__table-wrap">
+        <div class="booking__table" id="bookingTable">
+          <!-- Generated by JS -->
+        </div>
+      </div>
+
+      <div class="booking__legend">
+        <div class="legend-item"><span class="legend-dot legend-dot--free"></span> Свободно</div>
+        <div class="legend-item"><span class="legend-dot legend-dot--busy"></span> Занято</div>
+        <div class="legend-item"><span class="legend-dot legend-dot--mine"></span> Ваша запись</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ CONTACTS ═════════════════════════════════ -->
+  <section class="section contacts" id="contacts">
+    <div class="container">
+      <div class="section-badge">Контакты</div>
+      <h2 class="section-title">Как нас <span class="gradient-text">найти</span></h2>
+      <div class="contacts__grid">
+        <div class="contact-card">
+          <div class="contact-card__icon">📍</div>
+          <h4>Адрес</h4>
+          <p>г. Душанбе, ул. Рудаки, 47<br/>2-й этаж, кабинет 12</p>
+        </div>
+        <div class="contact-card">
+          <div class="contact-card__icon">📞</div>
+          <h4>Телефон</h4>
+          <p>+992 37 000-00-00<br/>+992 98 000-00-00</p>
+        </div>
+        <div class="contact-card">
+          <div class="contact-card__icon">🕐</div>
+          <h4>Режим работы</h4>
+          <p>Пн — Пт: 9:00 — 19:00<br/>Суббота: 9:00 — 16:00</p>
+        </div>
+        <div class="contact-card">
+          <div class="contact-card__icon">✉️</div>
+          <h4>Email</h4>
+          <p>info@dentist-shukurov.tj<br/>По всем вопросам</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ FOOTER ══════════════════════════════════ -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div class="footer__logo">
+        <span class="logo-icon">🦷</span>
+        <div>
+          <span class="logo-name">Доктор Шукуров</span>
+          <span class="logo-sub">Стоматологическая клиника</span>
+        </div>
+      </div>
+      <p class="footer__copy">© 2024 Стоматология доктора Шукурова. Все права защищены.</p>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════ BOOKING MODAL ════════════════════════════ -->
+  <div class="modal-overlay" id="bookingModal">
+    <div class="modal">
+      <button class="modal__close" onclick="closeModal()">✕</button>
+      <div class="modal__header">
+        <div class="modal__icon">📅</div>
+        <h3 id="modalTitle">Запись на приём</h3>
+        <p id="modalSubtitle">Выберите процедуру и заполните данные</p>
+      </div>
+
+      <form class="modal__form" id="bookingForm" onsubmit="submitBooking(event)">
+        <!-- Step 1: Procedure -->
+        <div class="form-step" id="step1">
+          <label class="form-label">Выберите процедуру <span class="req">*</span></label>
+          <div class="procedure-list">
+            <button type="button" class="proc-btn" data-value="Удаление зуба" onclick="selectProcedure(this)">🦷 Удаление зуба</button>
+            <button type="button" class="proc-btn" data-value="Пломбирование" onclick="selectProcedure(this)">🔧 Пломбирование</button>
+            <button type="button" class="proc-btn" data-value="Чистка зубов" onclick="selectProcedure(this)">✨ Чистка зубов</button>
+            <button type="button" class="proc-btn" data-value="Установка коронки" onclick="selectProcedure(this)">👑 Установка коронки</button>
+            <button type="button" class="proc-btn" data-value="Лечение канала" onclick="selectProcedure(this)">🔬 Лечение каналов</button>
+            <button type="button" class="proc-btn" data-value="Отбеливание зубов" onclick="selectProcedure(this)">💎 Отбеливание</button>
+            <button type="button" class="proc-btn" data-value="Консультация" onclick="selectProcedure(this)">💬 Консультация</button>
+          </div>
+          <input type="hidden" id="selectedProcedure" required />
+        </div>
+
+        <!-- Step 2: Client data -->
+        <div class="form-group">
+          <label class="form-label" for="clientName">Ваше имя <span class="req">*</span></label>
+          <input type="text" id="clientName" class="form-input" placeholder="Имя Фамилия" required />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="clientPhone">Номер телефона <span class="req">*</span></label>
+          <div class="phone-wrap">
+            <span class="phone-prefix">+992</span>
+            <input type="tel" id="clientPhone" class="form-input phone-input" placeholder="000000000" maxlength="9" pattern="\d{9}" required />
+          </div>
+          <small class="form-hint">Ровно 9 цифр после +992</small>
+        </div>
+
+        <div id="formError" class="form-error" style="display:none;"></div>
+
+        <button type="submit" class="btn btn--primary btn--full" id="submitBtn">
+          ✅ Подтвердить запись
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ SUCCESS MODAL ════════════════════════════ -->
+  <div class="modal-overlay" id="successModal">
+    <div class="modal modal--success">
+      <div class="success-icon">🎉</div>
+      <h3>Вы записаны!</h3>
+      <p id="successText"></p>
+      <button class="btn btn--primary btn--full" onclick="closeSuccess()">Отлично!</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

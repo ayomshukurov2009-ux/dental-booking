@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRM — Стоматология Шукуров</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="crm.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="protect.js"></script>
+</head>
+<body>
+
+  <!-- ═══════════════════════ LOGIN SCREEN ══════════════════════════════════ -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-box">
+      <div class="login-logo">
+        <span>🦷</span>
+        <div>
+          <strong>Стоматология Шукуров</strong>
+          <small>Панель управления</small>
+        </div>
+      </div>
+      <h2>Вход в CRM</h2>
+      <p class="login-subtitle">Доступ только для персонала клиники</p>
+
+      <form id="loginForm" onsubmit="doLogin(event)">
+        <div class="lf-group">
+          <label>Email</label>
+          <input type="email" id="loginEmail" value="ayomshukurov2009@gmail.com" readonly style="background: var(--surface2); color: var(--text-secondary); cursor: not-allowed;" />
+        </div>
+        <div class="lf-group">
+          <label>Пароль</label>
+          <div class="pw-wrap">
+            <input type="password" id="loginPassword" required placeholder="••••••••" autocomplete="current-password" />
+            <button type="button" class="pw-toggle" onclick="togglePassword()">👁</button>
+          </div>
+        </div>
+        <div id="loginError" class="login-error" style="display:none;"></div>
+        <button type="submit" class="login-btn" id="loginBtn">Войти</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ CRM APP ═══════════════════════════════════════ -->
+  <div class="crm-app" id="crmApp" style="display:none;">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar__logo">
+        <span>🦷</span>
+        <div>
+          <strong>Шукуров CRM</strong>
+          <small id="adminEmail">—</small>
+        </div>
+      </div>
+      <nav class="sidebar__nav">
+        <a href="#" class="nav-item active" id="navDashboard" onclick="showSection('dashboard', this)">
+          <span class="nav-icon">📊</span> Дашборд
+        </a>
+        <a href="#" class="nav-item" id="navAppointments" onclick="showSection('appointments', this)">
+          <span class="nav-icon">📋</span> Записи
+        </a>
+      </nav>
+      <div class="sidebar__footer">
+        <button class="logout-btn" onclick="logout()">🚪 Выйти</button>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="crm-main">
+
+      <!-- Header bar -->
+      <header class="crm-header">
+        <div class="crm-header__title" id="pageTitle">Дашборд</div>
+        <div class="crm-header__actions">
+          <div class="time-badge" id="clockBadge"></div>
+          <button class="refresh-btn" onclick="refreshData()" title="Обновить данные">🔄</button>
+        </div>
+      </header>
+
+      <!-- ══════════════ DASHBOARD SECTION ══════════════════════════════════ -->
+      <section class="crm-section" id="sectionDashboard">
+
+        <!-- Stats cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card__icon">📅</div>
+            <div class="stat-card__body">
+              <span class="stat-card__label">За сегодня</span>
+              <span class="stat-card__num" id="statToday">—</span>
+            </div>
+          </div>
+          <div class="stat-card stat-card--week">
+            <div class="stat-card__icon">📆</div>
+            <div class="stat-card__body">
+              <span class="stat-card__label">За неделю</span>
+              <span class="stat-card__num" id="statWeek">—</span>
+            </div>
+          </div>
+          <div class="stat-card stat-card--month">
+            <div class="stat-card__icon">🗓️</div>
+            <div class="stat-card__body">
+              <span class="stat-card__label">За месяц</span>
+              <span class="stat-card__num" id="statMonth">—</span>
+            </div>
+          </div>
+          <div class="stat-card stat-card--year">
+            <div class="stat-card__icon">📈</div>
+            <div class="stat-card__body">
+              <span class="stat-card__label">За год</span>
+              <span class="stat-card__num" id="statYear">—</span>
+            </div>
+          </div>
+          <div class="stat-card stat-card--accent">
+            <div class="stat-card__icon">🗃️</div>
+            <div class="stat-card__body">
+              <span class="stat-card__label">Всего</span>
+              <span class="stat-card__num" id="statTotal">—</span>
+            </div>
+          </div>
+          <div class="stat-card stat-card--green">
+            <div class="stat-card__icon">💰</div>
+            <div class="stat-card__body">
+              <span class="stat-card__label">С ценой</span>
+              <span class="stat-card__num" id="statPriced">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profit Chart Section -->
+        <div class="profit-section">
+          <div class="profit-header">
+            <h3>График прибыли</h3>
+            <div class="profit-tabs">
+              <button class="profit-tab active" onclick="setChartPeriod('week')">Неделя</button>
+              <button class="profit-tab" onclick="setChartPeriod('month')">Месяц</button>
+              <button class="profit-tab" onclick="setChartPeriod('year')">Год</button>
+            </div>
+          </div>
+          <div class="profit-total">
+            Заработок: <strong id="profitTotalSum">0 сомони</strong>
+          </div>
+          <div class="chart-container">
+            <canvas id="profitChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Quick tips -->
+        <div class="dash-info">
+          <div class="dash-tip">
+            <div class="dash-tip__icon">💡</div>
+            <div>
+              <strong>Как установить цену?</strong>
+              <p>Перейдите в раздел «Записи», нажмите на запись и введите итоговую сумму. После сохранения цену нельзя изменить.</p>
+            </div>
+          </div>
+          <div class="dash-tip">
+            <div class="dash-tip__icon">🗑️</div>
+            <div>
+              <strong>Клиент не пришёл?</strong>
+              <p>Нажмите кнопку «Не пришёл» в карточке записи — запись будет удалена, слот освободится.</p>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ══════════════ APPOINTMENTS SECTION ════════════════════════════════ -->
+      <section class="crm-section" id="sectionAppointments" style="display:none;">
+        <div class="appt-toolbar">
+          <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск по имени, телефону, процедуре..." oninput="filterAppointments()" />
+          <select id="filterStatus" class="filter-select" onchange="filterAppointments()">
+            <option value="">Все записи</option>
+            <option value="priced">С установленной ценой</option>
+            <option value="unpriced">Без цены</option>
+          </select>
+        </div>
+        <div class="appt-list" id="apptList">
+          <div class="loading">Загрузка...</div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ══════════════════════ APPOINTMENT DETAIL MODAL ══════════════════════ -->
+  <div class="modal-overlay" id="apptModal">
+    <div class="appt-modal">
+      <button class="appt-modal__close" onclick="closeApptModal()">✕</button>
+      <div class="appt-modal__header">
+        <div class="appt-modal__icon" id="apptModalIcon">📋</div>
+        <div>
+          <h3 id="apptModalName">—</h3>
+          <p id="apptModalMeta">—</p>
+        </div>
+      </div>
+
+      <div class="appt-detail-grid">
+        <div class="detail-item">
+          <span class="detail-label">📞 Телефон</span>
+          <span class="detail-val" id="detailPhone">—</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">🦷 Процедура</span>
+          <span class="detail-val" id="detailProc">—</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">📅 Дата и время</span>
+          <span class="detail-val" id="detailDateTime">—</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">🕐 Запись создана</span>
+          <span class="detail-val" id="detailCreated">—</span>
+        </div>
+      </div>
+
+      <!-- Price section -->
+      <div class="price-section" id="priceSection">
+        <div class="price-set-form" id="priceSetForm">
+          <label class="price-label">💰 Итоговая стоимость (сомони)</label>
+          <div class="price-input-row">
+            <input type="number" id="priceInput" class="price-input" placeholder="0" min="0" max="999999" />
+            <button class="btn-save-price" onclick="savePrice()">💾 Сохранить</button>
+          </div>
+          <small class="price-hint">⚠️ После сохранения цена не может быть изменена</small>
+          <div id="priceError" class="price-error" style="display:none;"></div>
+        </div>
+        <div class="price-set-done" id="priceSetDone" style="display:none;">
+          <div class="price-display">
+            <span class="price-display__label">✅ Итоговая стоимость</span>
+            <span class="price-display__val" id="priceDisplayVal">—</span>
+          </div>
+          <small class="price-display__note">Цена установлена и зафиксирована</small>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="appt-modal__actions">
+        <button class="btn-noshow" id="btnNoShow" onclick="markNoShow()">🚫 Клиент не пришёл</button>
+        <button class="btn-close-modal" onclick="closeApptModal()">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ CONFIRM DELETE MODAL ═══════════════════════════ -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="confirm-modal">
+      <div class="confirm-icon">⚠️</div>
+      <h3>Удалить запись?</h3>
+      <p>Клиент <strong id="confirmName">—</strong> будет удалён из списка. Слот снова станет свободным.</p>
+      <div class="confirm-actions">
+        <button class="btn-confirm-delete" id="confirmDeleteBtn">Да, удалить</button>
+        <button class="btn-confirm-cancel" onclick="closeConfirm()">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="crm.js"></script>
+</body>
+</html>
